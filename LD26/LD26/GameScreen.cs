@@ -139,48 +139,45 @@ namespace LD26
             // camera.position.Y = island.CheckHeightCollision(camera.position);
         }
 
+        RenderTarget2D leftEye = new RenderTarget2D(G.g.GraphicsDevice, G.Width / 2, G.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        RenderTarget2D rightEye = new RenderTarget2D(G.g.GraphicsDevice, G.Width / 2, G.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
+        RenderTarget2D leftGoggle = new RenderTarget2D(G.g.GraphicsDevice, G.Width / 2, G.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+        RenderTarget2D rightGoggle = new RenderTarget2D(G.g.GraphicsDevice, G.Width / 2, G.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
         public override void Draw()
         {
+            Camera3d.c.ApplyCustom(world.player);
+
             if (world.DrawSubshit)
             {
-                RenderTarget2D screenshot = new RenderTarget2D(GraphicsDevice, G.Width, G.Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
-                GraphicsDevice.SetRenderTarget(screenshot);
+                GraphicsDevice.SetRenderTarget(leftGoggle);
+                Camera3d.c.SetLeftEye(G.g.VoidEffect);
+                GraphicsDevice.Clear(Color.Black);
                 GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
                 GraphicsDevice.BlendState = BlendState.NonPremultiplied;
                 GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferWriteEnable = true };
-                GraphicsDevice.SamplerStates[0] = SamplerState.AnisotropicClamp;
+                world.DrawReal();
+
+                Camera3d.c.SetRightEye(G.g.VoidEffect);
+                GraphicsDevice.SetRenderTarget(rightGoggle);
                 GraphicsDevice.Clear(Color.Black);
                 world.DrawReal();
-                GraphicsDevice.SetRenderTarget(null);
-
-                Color[] data = new Color[G.Width * G.Height];
-                screenshot.GetData<Color>(0, new Rectangle(0, 0, G.Width, G.Height), data, 0, data.Length);
-                shot = new Texture2D(GraphicsDevice, G.Width, G.Height);
-                shot.SetData<Color>(data);
             }
 
+            Camera3d.c.SetLeftEye(G.g.VoidEffect);
+            GraphicsDevice.SetRenderTarget(leftEye);
             GraphicsDevice.Clear(Color.Black);
-            GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
-            GraphicsDevice.BlendState = BlendState.NonPremultiplied;
-            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferWriteEnable = true };
-            GraphicsDevice.SamplerStates[0] = SamplerState.AnisotropicClamp;
-            //camera.ApplyCustom(e, wor);
-
-            foreach (var p in e.CurrentTechnique.Passes)
-            {
-                p.Apply();
-            }
-
             world.DrawMinimal();
-            
-            
-                spriteBatch.Begin();
 
-                if (world.DrawSubshit && shot != null)
-                {
-                    spriteBatch.Draw(shot, new Rectangle((G.Width - world.SubWidth) / 2, (G.Height - world.SubHeight) / 2, world.SubWidth, world.SubHeight), new Rectangle((G.Width - world.SubWidth) / 2, (G.Height - world.SubHeight) / 2, world.SubWidth, world.SubHeight), Color.White);
-                }
+            Camera3d.c.SetRightEye(G.g.VoidEffect);
+            GraphicsDevice.SetRenderTarget(rightEye);
+            GraphicsDevice.Clear(Color.Black);
+            world.DrawMinimal();
 
+            PostProcessNone();
+            
+            spriteBatch.Begin();
             if (paused)
             {
                 spriteBatch.Draw(RM.GetTexture("white"), new Rectangle((int)(G.Width * 0.25f), (int)(G.Height * 0.4f), (int)(G.Width * 0.5f), (int)(G.Height * 0.2f)), Color.Black);
@@ -212,6 +209,173 @@ namespace LD26
             spriteBatch.End();
         }
 
+        void PostProcessNone()
+        {
+           //RenderTarget2D finalLeft = new RenderTarget2D(GraphicsDevice, 640, 800);
+           //RenderTarget2D finalRight = new RenderTarget2D(GraphicsDevice, 640, 800);
+
+           GraphicsDevice.SetRenderTarget(null);
+           GraphicsDevice.Clear(Color.Black);
+           spriteBatch.Begin();
+           spriteBatch.Draw(leftEye, new Rectangle(0, 0, 640, 800), Color.White);
+           spriteBatch.Draw(rightEye, new Rectangle(640, 0, 640, 800), Color.White);
+
+           if (world.DrawSubshit)
+           {
+               spriteBatch.Draw(leftGoggle, new Rectangle(180, 200, 460, 400), new Rectangle(180, 200, 460, 400), Color.White);
+               spriteBatch.Draw(rightGoggle, new Rectangle(640, 200, 460, 400), new Rectangle(0, 200, 460, 400), Color.White);
+           }
+           spriteBatch.End();
+        }
+
+        //void PostProcess()
+        //{
+        //    RenderTarget2D finalLeft = new RenderTarget2D(GraphicsDevice, 640, 800);
+        //    RenderTarget2D finalRight = new RenderTarget2D(GraphicsDevice, 640, 800);
+
+        //    GraphicsDevice.SetRenderTarget(finalLeft);
+        //    GraphicsDevice.Clear(Color.Black);
+        //    spriteBatch.Begin();
+        //    spriteBatch.Draw(leftEye, new Rectangle(0, 0, 640, 800), Color.White);
+
+        //    if (world.DrawSubshit)
+        //    {
+        //        spriteBatch.Draw(leftGoggle, new Rectangle(180, 200, 460, 400), new Rectangle(180, 200, 460, 400), Color.White);
+        //    }
+        //    spriteBatch.End();
+        //    GraphicsDevice.SetRenderTarget(finalRight);
+        //    GraphicsDevice.Clear(Color.Black);
+        //    spriteBatch.Begin();
+        //    spriteBatch.Draw(rightEye, new Rectangle(0, 0, 640, 800), Color.White);
+
+        //    if (world.DrawSubshit)
+        //    {
+        //        spriteBatch.Draw(rightGoggle, new Rectangle(0, 200, 460, 400), new Rectangle(0, 200, 460, 400), Color.White);
+        //    } 
+        //    spriteBatch.End();
+
+        //    //RenderTarget2D resultleft = new RenderTarget2D(GraphicsDevice, 1280, 800);
+        //    //RenderTarget2D resultright = new RenderTarget2D(GraphicsDevice, 1280, 800);
+
+        //    GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+        //    GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+        //    GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferWriteEnable = true };
+
+        //    float w = (GraphicsDevice.Viewport.Width) / (float)(G.Width);
+        //    float h = (GraphicsDevice.Viewport.Height) / (float)(G.Height);
+        //    float x = (GraphicsDevice.Viewport.X) / (float)(G.Width);
+        //    float y = (GraphicsDevice.Viewport.Y) / (float)(G.Height);
+
+        //    float ratio = (float)GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height;
+
+        //    float scaleFactor = 1f;
+
+        //    G.g.BarrelEffect.Parameters["Texture"].SetValue(finalLeft);
+        //    G.g.BarrelEffect.Parameters["ScaleIn"].SetValue(new Vector2((2 / w), (2 / h) / ratio));
+        //    G.g.BarrelEffect.Parameters["Scale"].SetValue(new Vector2((w / 2) * scaleFactor, (h / 2) * scaleFactor * ratio));
+        //    G.g.BarrelEffect.Parameters["HmdWarpParam"].SetValue(RiftSettings.DistortionK);
+        //    G.g.BarrelEffect.Parameters["ScreenCenter"].SetValue(new Vector2(x + w * 0.5f, y + h * 0.5f));
+        //    G.g.BarrelEffect.Parameters["LensCenter"].SetValue(new Vector2(x + (w + RiftSettings.LensSeparationDistance * 0.5f) * 0.5f, y + h * 0.5f));
+
+        //    Matrix texm = new Matrix(w, 0, 0, x,
+        //                0, h, 0, y,
+        //                0, 0, 0, 0,
+        //                0, 0, 0, 1);
+
+        //    G.g.BarrelEffect.Parameters["Texm"].SetValue(texm);
+
+        //    Matrix view = new Matrix(2, 0, 0, -1f,
+        //                              0, 2, 0, -1f,
+        //                              0, 0, 0, 0,
+        //                              0, 0, 0, 1);
+
+        //    G.g.BarrelEffect.Parameters["View"].SetValue(view);
+        //    G.g.BarrelEffect.Techniques[0].Passes[0].Apply();
+
+        //    GraphicsDevice.SetRenderTarget(null);
+        //    GraphicsDevice.Clear(Color.Black);
+        //    QuadRender.RenderQuadLeft(GraphicsDevice, G.g.BarrelEffect);
+        //    G.g.BarrelEffect.Parameters["ScreenCenter"].SetValue(new Vector2(x + w * 0.5f, y + h * 0.5f));
+        //    G.g.BarrelEffect.Parameters["Texture"].SetValue(finalRight);
+        //    G.g.BarrelEffect.Parameters["LensCenter"].SetValue(new Vector2(x + (w - RiftSettings.LensSeparationDistance * 0.5f) * 0.5f, y + h * 0.5f));
+        //    QuadRender.RenderQuadRight(GraphicsDevice, G.g.BarrelEffect);
+
+            
+        //    //GraphicsDevice.SetRenderTarget(null);
+
+        //    finalLeft.Dispose();
+        //    finalRight.Dispose();
+        //    //GraphicsDevice.Clear(Color.Black);
+        //    //spriteBatch.Begin();
+        //    //spriteBatch.Draw(resultleft, new Rectangle(0, 0, 640, 800), Color.White);
+        //    //spriteBatch.Draw(resultright, new Rectangle(640, 0, 640, 800), Color.White);
+        //    //spriteBatch.End();
+        //    //resultleft.Dispose();
+        //    //resultright.Dispose();
+        //}
+
+        //void PostProcessOld()
+        //{
+        //    RenderTarget2D final = new RenderTarget2D(GraphicsDevice, 1280, 800);
+
+        //    GraphicsDevice.SetRenderTarget(final);
+        //    GraphicsDevice.Clear(Color.Black);
+
+        //    spriteBatch.Begin();
+
+        //    spriteBatch.Draw(leftEye, new Rectangle(0, 0, 640, 800), Color.White);
+        //    spriteBatch.Draw(rightEye, new Rectangle(640, 0, 640, 800), Color.White);
+
+        //    if (world.DrawSubshit)
+        //    {
+        //        spriteBatch.Draw(leftGoggle, new Rectangle(180, 200, 480, 400), new Rectangle(180, 200, 480, 400), Color.White);
+        //        spriteBatch.Draw(rightGoggle, new Rectangle(640, 200, 480, 400), new Rectangle(0, 200, 480, 400), Color.White);
+        //    }
+
+        //    spriteBatch.End();
+
+        //    GraphicsDevice.SetRenderTarget(null);
+        //    GraphicsDevice.Clear(Color.Black);
+        //    GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+        //    GraphicsDevice.BlendState = BlendState.NonPremultiplied;
+        //    GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferWriteEnable = true };
+
+        //    float w = (GraphicsDevice.Viewport.Width) / (float)(G.Width);
+        //    float h = (GraphicsDevice.Viewport.Height) / (float)(G.Height);
+        //    float x = (GraphicsDevice.Viewport.X) / (float)(G.Width);
+        //    float y = (GraphicsDevice.Viewport.Y) / (float)(G.Height);
+
+        //    float ratio = (float)GraphicsDevice.Viewport.Width / GraphicsDevice.Viewport.Height;
+
+        //    float scaleFactor = 1f;
+
+        //    G.g.BarrelEffect.Parameters["Texture"].SetValue(final);
+        //    G.g.BarrelEffect.Parameters["ScaleIn"].SetValue(new Vector2((2/w), (2/h) / ratio));
+        //    G.g.BarrelEffect.Parameters["Scale"].SetValue(new Vector2((w/2) * scaleFactor, (h/2) * scaleFactor * ratio));
+        //    G.g.BarrelEffect.Parameters["HmdWarpParam"].SetValue(RiftSettings.DistortionK);
+        //    G.g.BarrelEffect.Parameters["ScreenCenter"].SetValue(new Vector2(x + w * 0.5f, y + h * 0.5f));
+        //    G.g.BarrelEffect.Parameters["LensCenter"].SetValue(new Vector2(x + (w + RiftSettings.LensSeparationDistance * 0.5f)*0.5f, y + h*0.5f));
+
+        //    Matrix texm = new Matrix(w, 0, 0, x,
+        //                0, h, 0, y,
+        //                0, 0, 0, 0,
+        //                0, 0, 0, 1);
+
+        //    G.g.BarrelEffect.Parameters["Texm"].SetValue(texm);
+
+        //    Matrix view = new Matrix(2, 0, 0, -1,
+        //                              0, 2, 0, -1,
+        //                              0, 0, 0, 0,
+        //                              0, 0, 0, 1);
+
+        //    G.g.BarrelEffect.Parameters["View"].SetValue(view);
+        //    G.g.BarrelEffect.Techniques[0].Passes[0].Apply();
+
+        //    //QuadRender.RenderQuad(GraphicsDevice, G.g.BarrelEffect);
+
+        //    final.Dispose();
+        //}
+
         public override void Show()
         {
             IM.SnapToCenter = false;
@@ -227,7 +391,6 @@ namespace LD26
         }
 
         Achievement achievementToRender;
-        private Texture2D shot;
 
         public bool Dead { get; set; }
     }

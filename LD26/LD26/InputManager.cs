@@ -632,6 +632,7 @@ namespace LD26
         Action, Sprint,
         Use,
         EditorLeftClick,
+        HeadUp, HeadDown, HeadLeft, HeadRight, 
 #if debug
         RestartLevel,
         ChangeSound,

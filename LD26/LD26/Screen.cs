@@ -8,7 +8,6 @@ namespace LD26
     public abstract class Screen
     {
         protected Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch;
-        protected Microsoft.Xna.Framework.Graphics.BasicEffect e;
         protected Microsoft.Xna.Framework.Graphics.GraphicsDevice GraphicsDevice;
         protected Microsoft.Xna.Framework.Graphics.SpriteFont font;
 
@@ -16,7 +15,6 @@ namespace LD26
         {
             this.g = G.g;
             this.spriteBatch = g.spriteBatch;
-            this.e = g.e;
             this.GraphicsDevice = g.GraphicsDevice;
             this.font = g.font;
         }

@@ -57,7 +57,7 @@ namespace LD26.entities
                 var cameraFinalTarget = Position.ToVector3() + new Vector3(0, eyeYHeight, 0) + cameraRotatedTarget;
 
                 var v = Matrix.CreateLookAt(Position.ToVector3() + new Vector3(0, eyeYHeight, 0), cameraFinalTarget, Vector3.Up);
-                var p = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(Math.Min(60, abilityTimer)), (float)G.g.Window.ClientBounds.Width / (float)G.g.Window.ClientBounds.Height, 1f, 10000f);
+                var p = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(Math.Min(60, abilityTimer)), ((float)G.g.Window.ClientBounds.Width / 2) / (float)G.g.Window.ClientBounds.Height, 1f, 10000f);
 
                  var bf = new BoundingFrustum(v * p);
 
@@ -93,7 +93,11 @@ namespace LD26.entities
 
                 foreach (var e in World.entities.OfType<EndPortal>())
                 {
-                    e.PlayerIsLooking();
+                    if (bf.Contains(new BoundingSphere(e.Position.ToVector3() + new Vector3(0, 12, 0), 1)) ==
+                        ContainmentType.Contains)
+                    {
+                        e.PlayerIsLooking();
+                    }
                 }
             }
                 
@@ -113,26 +117,35 @@ namespace LD26.entities
 
             Vector3 moveVector = Vector3.Zero;
 
+            if (RM.IsDown(InputAction.HeadLeft))
+                Camera3d.c.leftRightRotHead += 0.03f;
+            if (RM.IsDown(InputAction.HeadRight))
+                Camera3d.c.leftRightRotHead -= 0.03f;
+            if (RM.IsDown(InputAction.HeadUp))
+                Camera3d.c.upDownRotHead += 0.03f;
+            if (RM.IsDown(InputAction.HeadDown))
+                Camera3d.c.upDownRotHead -= 0.03f;
+
             if (frozen)
             {
                 Camera3d.c.leftRightRot -= 0.0007f;
             }
             else
             { 
-                Camera3d.c.leftRightRot -= xDifference * IM.MouseSensitivity;
-                Camera3d.c.upDownRot -= yDifference * IM.MouseSensitivity;
+                Camera3d.c.leftRightRot -= (xDifference * IM.MouseSensitivity);
+                var newUpDownRot = Camera3d.c.upDownRot - (yDifference * IM.MouseSensitivity);
 
-                if (Camera3d.c.upDownRot > MathHelper.PiOver2 - 0.1f)
-                    Camera3d.c.upDownRot = MathHelper.PiOver2 - 0.1f;
-                else if (Camera3d.c.upDownRot < (MathHelper.PiOver2 - 0.1f) * -1)
-                    Camera3d.c.upDownRot = (MathHelper.PiOver2 - 0.1f) * -1;
+                if (newUpDownRot + Camera3d.c.upDownRotHead > MathHelper.PiOver2 - 0.1f)
+                    newUpDownRot = (MathHelper.PiOver2 - 0.1f) - Camera3d.c.upDownRotHead;
+                else if (newUpDownRot + Camera3d.c.upDownRotHead < (MathHelper.PiOver2 - 0.1f) * -1)
+                    newUpDownRot = (-MathHelper.PiOver2 + 0.1f) - Camera3d.c.upDownRotHead;
+
+                Camera3d.c.upDownRot = newUpDownRot;
 
                 if (Camera3d.c.leftRightRot > MathHelper.TwoPi)
                     Camera3d.c.leftRightRot -= MathHelper.TwoPi;
                 else if (Camera3d.c.leftRightRot < MathHelper.TwoPi * -1)
                     Camera3d.c.leftRightRot += MathHelper.TwoPi;
-           
-
 
                 if (RM.IsDown(InputAction.Left))
                     moveVector += Vector3.Left;
@@ -143,6 +156,7 @@ namespace LD26.entities
                 if (RM.IsDown(InputAction.Down))
                     moveVector += Vector3.Backward;
             }
+            
             MovePlayer(moveVector);
 
             cube.SetPosition(new Vector3(Position.X, 0, Position.Y));
@@ -256,7 +270,7 @@ namespace LD26.entities
         
         public Vector3 getLookAt()
         {
-            Matrix cameraRotation = Matrix.CreateRotationX(Camera3d.c.upDownRot) * Matrix.CreateRotationY(Camera3d.c.leftRightRot);
+            Matrix cameraRotation = Matrix.CreateRotationX(Math.Max(Math.Min(Camera3d.c.upDownRot + Camera3d.c.upDownRotHead, MathHelper.PiOver2 - 0.01f), -MathHelper.PiOver2 + 0.01f)) * Matrix.CreateRotationY(Camera3d.c.leftRightRot + Camera3d.c.leftRightRotHead);
             Vector3 rotatedVector = Vector3.Transform(Vector3.Forward, cameraRotation);
             rotatedVector.Normalize();
             return rotatedVector;
@@ -276,7 +290,7 @@ namespace LD26.entities
 
         public override void Draw()
         {
-            cube.Draw();
+            //cube.Draw();
             base.Draw();
         }
 

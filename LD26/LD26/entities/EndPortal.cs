@@ -117,15 +117,19 @@ namespace LD26.entities
             pointList[35] = new VertexPositionColor(c, color);
 
 
-            G.g.e.World = mworld;
-            G.g.e.LightingEnabled = false;
-            G.g.e.TextureEnabled = false;
-            G.g.e.VertexColorEnabled = true;
-            G.g.e.CurrentTechnique.Passes[0].Apply();
+            G.g.VoidEffect.CurrentTechnique = G.g.VoidEffect.Techniques["VertexColor"];
+            G.g.VoidEffect.Parameters["World"].SetValue(mworld);
+            //G.g.e.LightingEnabled = false;
+            //G.g.e.TextureEnabled = false;
+            //G.g.e.VertexColorEnabled = true;
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
             G.g.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, pointList, 0, 12);
-            G.g.e.LightingEnabled = true;
-            G.g.e.TextureEnabled = true;
-            G.g.e.VertexColorEnabled = false;
+            G.g.VoidEffect.CurrentTechnique = G.g.VoidEffect.Techniques["Goggles"];
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
+
+            //G.g.e.LightingEnabled = true;
+            //G.g.e.TextureEnabled = true;
+            //G.g.e.VertexColorEnabled = false;
         }
 
         private bool heruawheriausdhfa = false;

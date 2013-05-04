@@ -10,9 +10,16 @@ namespace LD26
         /// </summary>
         static void Main(string[] args)
         {
-            using (G game = new G())
+            try
             {
-                game.Run();
+                using (G game = new G())
+                {
+                    game.Run();
+                }
+            }
+            finally
+            {
+                RiftSettings.Dispose();
             }
         }
     }

@@ -20,7 +20,10 @@ namespace LD26
         public SpriteBatch spriteBatch;
         public static G g;
         public static Random r = new Random();
-        public BasicEffect e;
+
+        public Effect VoidEffect;
+        public Effect BarrelEffect;
+
         public SpriteFont font;
         Screen currentScreen;
 
@@ -30,7 +33,7 @@ namespace LD26
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             Window.Title = "The Void";
-            graphics.PreferredBackBufferHeight = 720;
+            graphics.PreferredBackBufferHeight = 800;
             graphics.PreferredBackBufferWidth = 1280;
         }
 
@@ -54,7 +57,15 @@ namespace LD26
         /// </summary>
         protected override void LoadContent()
         {
-            e = new BasicEffect(GraphicsDevice);
+            VoidEffect = Content.Load<Effect>("voidshader");
+            BarrelEffect = Content.Load<Effect>("barrelshader");
+
+            VoidEffect.Parameters["AmbientLightColor"]    .SetValue(new Vector3(0.2f, 0.2f, 0.2f));
+            VoidEffect.Parameters["DirLight0Direction"]   .SetValue(new Vector3(-0.1f, -0.4f, 0.7f));
+            VoidEffect.Parameters["DirLight0DiffuseColor"].SetValue(new Vector3(0.6f, 0.6f, 0.6f));
+            VoidEffect.Parameters["DirLight1Direction"]   .SetValue(new Vector3(0.4f, 0.4f, 0.7f));
+            VoidEffect.Parameters["DirLight1DiffuseColor"].SetValue(new Vector3(0.2f, 0.2f, 0.2f));
+
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = Content.Load<SpriteFont>("font");
             RM.font = font;
@@ -189,7 +200,6 @@ namespace LD26
             GraphicsDevice.RasterizerState = RasterizerState.CullCounterClockwise;
             GraphicsDevice.BlendState = BlendState.NonPremultiplied;
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true, DepthBufferWriteEnable = true };
-            GraphicsDevice.SamplerStates[0] = SamplerState.AnisotropicClamp;
             currentScreen.Draw();
 
             base.Draw(gameTime);

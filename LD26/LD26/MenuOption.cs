@@ -63,7 +63,12 @@ namespace LD26
             return (visible && position.X >= Position.X &&
                      position.X <= Position.X + Size.X &&
                      position.Y >= Position.Y &&
-                     position.Y <= Position.Y + Size.Y);
+                     position.Y <= Position.Y + Size.Y) ||
+ 
+                     (visible && position.X >= Position.X + 640 &&
+                     position.X <= Position.X + Size.X+ 640 &&
+                     position.Y >= Position.Y &&
+                     position.Y <= Position.Y + Size.Y) ;
         }
 
         internal void Draw(Color color)
@@ -71,6 +76,7 @@ namespace LD26
             if (visible)
             {
                 G.g.spriteBatch.DrawString(spriteFont, name, position, color);
+                G.g.spriteBatch.DrawString(spriteFont, name, position + new Vector2(640, 0), color);
             }
         }
 

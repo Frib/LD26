@@ -65,9 +65,9 @@ namespace LD26.entities
         public override void Draw()
         {
             var GraphicsDevice = G.g.GraphicsDevice;
-            G.g.e.World = GetMatrixChain();
-            G.g.e.Texture = RM.GetTexture("cat");
-            G.g.e.CurrentTechnique.Passes[0].Apply();
+            G.g.VoidEffect.Parameters["World"].SetValue(GetMatrixChain());
+            G.g.VoidEffect.Parameters["Texture"].SetValue(RM.GetTexture("cat"));
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
 
             GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, billboardVertices,
                                                                            0, 2);

@@ -152,14 +152,14 @@ namespace LD26.entities
         {
 
             var GraphicsDevice = G.g.GraphicsDevice;
-            G.g.e.World = GetMatrixChain();
-            G.g.e.Texture = RM.GetTexture("monster\\m" + (ticker % 100 / 5));
-            G.g.e.CurrentTechnique.Passes[0].Apply();
+            G.g.VoidEffect.Parameters["World"].SetValue(GetMatrixChain());
+            G.g.VoidEffect.Parameters["Texture"].SetValue(RM.GetTexture("monster\\m" + (ticker % 100 / 5)));
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
 
             GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, billboardVertices, 0, 2);
 
-            G.g.e.Texture = RM.GetTexture("monster\\face");
-            G.g.e.CurrentTechnique.Passes[0].Apply();
+            G.g.VoidEffect.Parameters["Texture"].SetValue(RM.GetTexture("monster\\face"));
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
             GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, billboardVertices, 0, 2);
 
         }

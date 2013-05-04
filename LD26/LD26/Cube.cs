@@ -149,11 +149,9 @@ namespace LD26
 
         public void Draw(bool highlight = false)
         {
-            G.g.e.World = world;
-
-                G.g.e.Texture = textures[0];
-            
-            G.g.e.CurrentTechnique.Passes[0].Apply();
+            G.g.VoidEffect.Parameters["World"].SetValue(world);
+            G.g.VoidEffect.Parameters["Texture"].SetValue(textures[0]);
+            G.g.VoidEffect.CurrentTechnique.Passes[0].Apply();
             G.g.GraphicsDevice.DrawUserPrimitives<VertexPositionNormalTexture>(PrimitiveType.TriangleList, pointList, 0, 12);
         }
 

@@ -17,13 +17,13 @@ namespace LD26
         private List<InputAction> actions = new List<InputAction>();
         private List<MenuOption> labels = new List<MenuOption>();
         private List<MenuOption> op1 = new List<MenuOption>();
-        private List<MenuOption> op2 = new List<MenuOption>();
-        private List<MenuOption> op3 = new List<MenuOption>();
+        //private List<MenuOption> op2 = new List<MenuOption>();
+        //private List<MenuOption> op3 = new List<MenuOption>();
 
         private int x = 0;
         private int y = 0;
         private int firstShownAction = 0;
-        private int actionsShown = 20;
+        private int actionsShown = 6;
 
         private bool IsSelecting;
 
@@ -38,7 +38,7 @@ namespace LD26
         public override void Show()
         {
             CreateControls();
-            G.g.IsMouseVisible = true;
+            G.g.IsMouseVisible = false;
             IM.SnapToCenter = false;
         }
 
@@ -50,8 +50,8 @@ namespace LD26
             actions.Clear();
             labels.Clear();
             op1.Clear();
-            op2.Clear();
-            op3.Clear();
+            //op2.Clear();
+            //op3.Clear();
             InputAction[] buttons = RM.GetValidInputActions();
             foreach (InputAction ia in buttons)
             {
@@ -76,16 +76,21 @@ namespace LD26
         {
             action(labels[index]);
             action(op1[index]);
-            action(op2[index]);
-            action(op3[index]);
+            //action(op2[index]);
+            //action(op3[index]);
         }
 
         private void CalculatePositions()
         {
-            int offsetY = 100;
-            int quarter = G.Width / 5;
+            int offsetY = 400 - 16 * Math.Min(6, actions.Count);
             var font = RM.font;
             Vector2 minSize = new Vector2(font.MeasureString("<EMPTY>").X, 0);
+
+            var largest = labels.Select(x => font.MeasureString(x.Name).X).Max();
+            var maxSize = largest + minSize.X + 32;
+
+            var offsetName = 320 - maxSize/2;
+            var offsetButton = 320 - maxSize / 2 + largest + 32;
 
             SetFirstShownAction();
 
@@ -93,10 +98,10 @@ namespace LD26
             {
                 if (i >= firstShownAction && i < firstShownAction + (actionsShown))
                 {
-                    labels[i].Position = new Vector2(quarter, offsetY);
-                    op1[i].Position = new Vector2(quarter * 2, offsetY);
-                    op2[i].Position = new Vector2(quarter * 3, offsetY);
-                    op3[i].Position = new Vector2(quarter * 4, offsetY);
+                    labels[i].Position = new Vector2(offsetName, offsetY);
+                    op1[i].Position = new Vector2(offsetButton, offsetY);
+                    //op2[i].Position = new Vector2(quarter * 3, offsetY);
+                    //op3[i].Position = new Vector2(quarter * 4, offsetY);
 
                     PerformActionOnRowOfMenuOptions(i, new Action<MenuOption>((mo) => { mo.Visible = true; }));
 
@@ -130,20 +135,20 @@ namespace LD26
 
             if (buttonList.Count > 1)
             {
-                op2.Add(new MenuOption(buttonList[1].ToString(), sf));
+                //op2.Add(new MenuOption(buttonList[1].ToString(), sf));
             }
             else
             {
-                op2.Add(new MenuOption("<EMPTY>", sf));
+                //op2.Add(new MenuOption("<EMPTY>", sf));
             }
 
             if (buttonList.Count > 2)
             {
-                op3.Add(new MenuOption(buttonList[2].ToString(), sf));
+                //op3.Add(new MenuOption(buttonList[2].ToString(), sf));
             }
             else
             {
-                op3.Add(new MenuOption("<EMPTY>", sf));
+                //op3.Add(new MenuOption("<EMPTY>", sf));
             }
         }
 
@@ -217,24 +222,24 @@ namespace LD26
                     }
                     return true;
                 }
-                else if (op2[i].Intersects(mousePos))
-                {
-                    if (movedMouse)
-                    {
-                        y = i;
-                        x = 1;
-                    }
-                    return true;
-                }
-                else if (op3[i].Intersects(mousePos))
-                {
-                    if (movedMouse)
-                    {
-                        y = i;
-                        x = 2;
-                    }
-                    return true;
-                }
+                //else if (op2[i].Intersects(mousePos))
+                //{
+                //    if (movedMouse)
+                //    {
+                //        y = i;
+                //        x = 1;
+                //    }
+                //    return true;
+                //}
+                //else if (op3[i].Intersects(mousePos))
+                //{
+                //    if (movedMouse)
+                //    {
+                //        y = i;
+                //        x = 2;
+                //    }
+                //    return true;
+                //}
             }
             return false;
         }
@@ -337,19 +342,24 @@ namespace LD26
             {
                 labels[i].Draw(Color.Lime);
                 op1[i].Draw(GetHightlightColor(0, i));
-                op2[i].Draw(GetHightlightColor(1, i));
-                op3[i].Draw(GetHightlightColor(2, i));
+                //op2[i].Draw(GetHightlightColor(1, i));
+                //op3[i].Draw(GetHightlightColor(2, i));
             }
 
             if (firstShownAction > 0)
             {
-                sb.DrawString(sf, "^^^", new Vector2(G.Width / 2, 80), Color.Yellow);
+                sb.DrawString(sf, "^^^", new Vector2((G.Width / 4) * 3, 280), Color.Yellow);
+                sb.DrawString(sf, "^^^", new Vector2(G.Width / 4, 280), Color.Yellow);
             }
             if (firstShownAction + actionsShown < actions.Count)
             {
-                sb.DrawString(sf, "vvv", new Vector2(G.Width / 2, 80 + actionsShown * op1[firstShownAction].Size.Y), Color.Yellow);
+                sb.DrawString(sf, "vvv", new Vector2((G.Width / 4) * 3, 280 + actionsShown * op1[firstShownAction].Size.Y), Color.Yellow);
+                sb.DrawString(sf, "vvv", new Vector2(G.Width / 4, 280 + actionsShown * op1[firstShownAction].Size.Y), Color.Yellow);
             }
 
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X, (int)IM.MousePos.Y, 12, 12), Color.Lime);
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X + 640, (int)IM.MousePos.Y, 9, 9), Color.Lime);
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X - 640, (int)IM.MousePos.Y, 9, 9), Color.Lime);
             sb.End();
         }
 

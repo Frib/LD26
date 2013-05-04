@@ -16,6 +16,12 @@ namespace LD26
         public float upDownRot = 0;
         public int cameraZoom = 80;
 
+
+        public float upDownRotHead = 0;
+        public float leftRightRotHead = 0;
+
+        public float EyeOffset = 1f;
+
         public Camera3d()
         {
             c = this;
@@ -53,9 +59,9 @@ namespace LD26
             }
         }
 
-        public void Apply(BasicEffect e)
+        public void Apply(Effect e)
         {
-            e.World = Matrix.Identity;
+            e.Parameters["World"].SetValue(Matrix.Identity);
             Matrix cameraRotation = Matrix.CreateRotationX(upDownRot) * Matrix.CreateRotationY(leftRightRot);
 
             Vector3 cameraOriginalTarget = new Vector3(0, 0, -1);
@@ -65,23 +71,80 @@ namespace LD26
             Vector3 cameraOriginalUpVector = new Vector3(0, 1, 0);
             cameraRotatedUpVector = Vector3.Transform(cameraOriginalUpVector, cameraRotation);
 
-            e.View = View;
-            e.Projection = Projection;
+            e.Parameters["View"].SetValue(View);
+            e.Parameters["Projection"].SetValue(Projection);
+            e.Parameters["CameraPosition"].SetValue(position);
         }
 
-        public void ApplyCustom(BasicEffect e, Entity ent)
+        public void ApplyCustom(Entity ent)
         {
-            e.World = Matrix.Identity;
             var entPos = ent.Position.ToVector3();
             entPos.Y += ent.eyeYHeight;
+            camPos = entPos;
+
+            //Vector3 eye = new Vector3(RightEye ? EyeOffset : -EyeOffset, 0, 0);
+            //var rotatedEye = Vector3.Transform(eye, Matrix.CreateRotationY(Camera3d.c.leftRightRot));
+
 
             Vector3 cameraRotatedTarget = ent.CamDirection;
-            cameraFinalTarget = entPos + cameraRotatedTarget;
+            cameraFinalTarget = entPos + cameraRotatedTarget;// + rotatedEye;
 
             Vector3 cameraOriginalUpVector = new Vector3(0, 1, 0);
 
-            e.View = Matrix.CreateLookAt(entPos, cameraFinalTarget, cameraOriginalUpVector);
-            e.Projection = Projection;
+            //e.Parameters["View"].SetValue(Matrix.CreateLookAt(entPos + rotatedEye, cameraFinalTarget, cameraOriginalUpVector));
+            //e.Parameters["Projection"].SetValue(Projection);
+            //e.Parameters["CameraPosition"].SetValue(entPos);
+            
+            Matrix viewCenterMatrix = Matrix.CreateLookAt(entPos, cameraFinalTarget, cameraOriginalUpVector);
+
+            // Compute Aspect Ratio. Stereo mode cuts width in half.
+            float aspectRatio = (RiftSettings.HResolution * 0.5f) / RiftSettings.VResolution;
+
+            // Compute Vertical FOV based on distance.
+            float yfov = 2.0f * (float)Math.Atan(RiftSettings.VScreenCenter/RiftSettings.EyeToScreenDistance);
+
+            // Post-projection viewport coordinates range from (-1.0, 1.0), with the
+            // center of the left viewport falling at (1/4) of horizontal screen size.
+            // We need to shift this projection center to match with the lens center.
+            // We compute this shift in physical units (meters) to correct
+            // for different screen sizes and then rescale to viewport coordinates.
+            float viewCenter = RiftSettings.HScreenSize * 0.25f;
+            float eyeProjectionShift = viewCenter - RiftSettings.LensSeparationDistance*0.5f;
+            float projectionCenterOffset = 4.0f * eyeProjectionShift / RiftSettings.HScreenSize;
+            // Projection matrix for the "center eye", which the left/right matrices are based on.
+            Matrix projCenter = Matrix.CreatePerspectiveFieldOfView(yfov, aspectRatio, 1f, 1000.0f);
+            projLeft = Matrix.CreateTranslation(projectionCenterOffset, 0, 0) * projCenter;
+            projRight = Matrix.CreateTranslation(-projectionCenterOffset, 0, 0) * projCenter;
+
+            // View transformation translation in world units.
+            float halfIPD = RiftSettings.InterpupillaryDistance * 0.5f;
+            float halfIPDToScale = halfIPD*10f;
+            viewLeft = Matrix.CreateTranslation(halfIPDToScale, 0, 0) * viewCenterMatrix;
+            viewRight = Matrix.CreateTranslation(-halfIPDToScale, 0, 0) * viewCenterMatrix;
+        }
+
+        private Matrix projLeft;
+        private Matrix projRight;
+        private Matrix viewLeft;
+        private Matrix viewRight;
+        private Vector3 camPos;
+
+        public void SetLeftEye(Effect e)
+        {
+            e.Parameters["World"].SetValue(Matrix.Identity);
+            e.Parameters["View"].SetValue(viewLeft);
+            e.Parameters["Projection"].SetValue(projLeft);
+            e.Parameters["CameraPosition"].SetValue(camPos);
+            
+        }
+
+        public void SetRightEye(Effect e)
+        {
+            e.Parameters["World"].SetValue(Matrix.Identity);
+            e.Parameters["View"].SetValue(viewRight);
+            e.Parameters["Projection"].SetValue(projRight);
+            e.Parameters["CameraPosition"].SetValue(camPos);
+            
         }
 
         public Vector3 GetCameraDirection()
@@ -102,7 +165,7 @@ namespace LD26
 
         public Matrix Projection
         {
-            get { return Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(90), (float)G.g.Window.ClientBounds.Width / (float)G.g.Window.ClientBounds.Height, 1f, 10000f); }
+            get { return Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(110), (float)(G.g.Window.ClientBounds.Width / 2f) / (float)G.g.Window.ClientBounds.Height, 1f, 10000f); }
         }
 
         public Vector3 MousePos

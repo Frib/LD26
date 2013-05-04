@@ -366,18 +366,15 @@ namespace LD26
                 return;
             }
 
-            e.TextureEnabled = false;
-            e.LightingEnabled = false;
-            e.FogEnabled = true;
-            e.FogColor = Color.Black.ToVector3();
-            e.FogStart = 1f;
-            e.FogEnd = 48f;
-            e.VertexColorEnabled = false;
+            e.CurrentTechnique = e.Techniques["Wireframe"];
+            e.Parameters["fogStart"].SetValue(1f);
+            e.Parameters["fogEnd"].SetValue(80f);
+            e.CurrentTechnique.Passes[0].Apply();
             gd.RasterizerState = wireRasterizer;
 
             if (player != null)
             {
-                Camera3d.c.ApplyCustom(e, player);
+                //Camera3d.c.ApplyCustom(player);
             }
             else
             {
@@ -385,29 +382,22 @@ namespace LD26
             }
 
             gd.BlendState = BlendState.NonPremultiplied;
-            e.World = Matrix.Identity;
-            e.Texture = RM.GetTexture("white");
+            e.Parameters["World"].SetValue(Matrix.Identity);
+            e.Parameters["Texture"].SetValue(RM.GetTexture("white"));
             e.CurrentTechnique.Passes[0].Apply();
 
             gd.SetVertexBuffer(vbminimal);
             gd.DrawPrimitives(PrimitiveType.LineList, 0, vbminimal.VertexCount);
-            
-            e.Texture = RM.GetTexture("white");
-            e.CurrentTechnique.Passes[0].Apply();
 
-            e.LightingEnabled = false;
-            e.TextureEnabled = false;
-            e.VertexColorEnabled = false;
+            e.Parameters["Texture"].SetValue(RM.GetTexture("white"));
             e.CurrentTechnique.Passes[0].Apply();
-
-            //DrawEntities();
         }
         
         internal void DrawGeom()
         {
             if (player != null && !editorEnabled)
             {
-                Camera3d.c.ApplyCustom(e, player);
+                //Camera3d.c.ApplyCustom(player);
             }
             else
             {
@@ -416,15 +406,17 @@ namespace LD26
             }
 
             gd.BlendState = BlendState.NonPremultiplied;
-            e.World = Matrix.Identity;
-            e.Texture = RM.GetTexture("r");
+            e.Parameters["World"].SetValue(Matrix.Identity);
+
+            e.Parameters["Texture"].SetValue(RM.GetTexture("r"));
             e.CurrentTechnique.Passes[0].Apply();
             foreach (var geom in geometry)
             {
                 gd.SetVertexBuffer(geom.vb);
                 gd.DrawPrimitives(PrimitiveType.TriangleList, 0, geom.vb.VertexCount / 3);
             }
-            e.Texture = RM.GetTexture("white");
+            e.Parameters["Texture"].SetValue(RM.GetTexture("white"));
+
             e.CurrentTechnique.Passes[0].Apply();
 
             if (editorEnabled)
@@ -440,8 +432,7 @@ namespace LD26
                     mPos = SnapToGridPos8;
                 }
 
-                e.Texture = RM.GetTexture("white");
-                e.LightingEnabled = false;
+                e.Parameters["Texture"].SetValue(RM.GetTexture("white"));
                 e.CurrentTechnique.Passes[0].Apply();
 
                 if (editMode == EditMode.Pathing)
@@ -476,8 +467,7 @@ namespace LD26
                 if (editMode == EditMode.Pathing)
                 {
 
-                    e.TextureEnabled = false;
-                    e.VertexColorEnabled = true;
+                    e.CurrentTechnique = e.Techniques["VertexColor"];
                     e.CurrentTechnique.Passes[0].Apply();
                     foreach (var node in Pathnodes)
                     {
@@ -510,24 +500,12 @@ namespace LD26
 
         internal void DrawReal()
         {
-            e.TextureEnabled = true;
-            e.LightingEnabled = true;
-            e.AmbientLightColor = new Vector3(0.2f, 0.2f, 0.2f);
-            e.DirectionalLight0.Enabled = true;
-            e.DirectionalLight0.Direction = new Vector3(-0.1f, -0.4f, 0.7f);
-            e.DirectionalLight0.DiffuseColor = new Vector3(0.6f, 0.6f, 0.6f);
-            e.DirectionalLight1.Enabled = true;
-            e.DirectionalLight1.Direction = new Vector3(0.4f, 0.4f, 0.7f);
-            e.DirectionalLight1.DiffuseColor = new Vector3(0.2f, 0.2f, 0.2f);
-            e.FogEnabled = false;
-            
-            DrawGeom();
+            e.CurrentTechnique = e.Techniques["Goggles"];
+            //e.FogEnabled = false;
 
-            e.LightingEnabled = true;
-            e.TextureEnabled = true;
-            e.VertexColorEnabled = false;
             e.CurrentTechnique.Passes[0].Apply();
 
+            DrawGeom();
             DrawEntities();
         }
 
@@ -559,7 +537,7 @@ namespace LD26
             }
         }
 
-        public BasicEffect e { get { return G.g.e; } }
+        public Effect e { get { return G.g.VoidEffect; } }
 
         public GraphicsDevice gd { get { return G.g.GraphicsDevice; } }
 

@@ -21,7 +21,7 @@ namespace LD26
         public override void Show()
         {
             CreateControls();
-            G.g.IsMouseVisible = true;
+            G.g.IsMouseVisible = false;
             IM.SnapToCenter = false;
             EndPortal.musicindex = 0;
         }
@@ -42,15 +42,14 @@ namespace LD26
 
         private void CalculatePositions()
         {
-            int offsetY = 100;
-            int quarter = G.Width / 5;
+            int offsetY = 400 - 16 * options.Count;
             var font = RM.font;
-            Vector2 minSize = new Vector2(font.MeasureString("<EMPTY>").X, 0);
-
+            var minSize = font.MeasureString("<EMPTY>").X;
             foreach (var o in options)
             {
-                o.Position = new Vector2(128, offsetY);
-                offsetY += 64;
+                var size = Math.Max(font.MeasureString(o.Name).X, minSize);
+                o.Position = new Vector2(320 - (size / 2), offsetY);
+                offsetY += 32;
             }
         }
 
@@ -108,6 +107,10 @@ namespace LD26
             //sb.DrawString(RM.font, "The Void", new Vector2(464, 320), Color.Green);
             sb.DrawString(RM.font, "Where things go null", new Vector2(64, 464+128), Color.Fuchsia);
             sb.DrawString(RM.font, "into the void", new Vector2(64, 490+128), Color.Fuchsia);
+
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X, (int)IM.MousePos.Y, 12, 12), Color.Lime);
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X + 640, (int)IM.MousePos.Y, 9, 9), Color.Lime);
+            sb.Draw(RM.GetTexture("white"), new Rectangle((int)IM.MousePos.X - 640, (int)IM.MousePos.Y, 9, 9), Color.Lime);
             sb.End();
         }
     }
