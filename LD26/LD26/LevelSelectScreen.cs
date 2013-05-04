@@ -28,7 +28,7 @@ namespace LD26
         {
             options.Clear();
 
-            options.Add(new MenuOption("Level editor", RM.font) { Action = () => G.g.Showscreen(new GameScreen(-1)) });
+            //options.Add(new MenuOption("Level editor", RM.font) { Action = () => G.g.Showscreen(new GameScreen(-1)) });
 
             foreach (var level in RM.LevelNames)
             {

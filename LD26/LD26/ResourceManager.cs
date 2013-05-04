@@ -258,6 +258,7 @@ namespace LD26
             sb.AppendLine("sprint:LeftShift");
             sb.AppendLine("use:E");
             sb.AppendLine("editorleftclick:LeftMouse");
+            sb.AppendLine("skiptutorial:Tab");
 
             File.WriteAllText("defaultconfig.txt", sb.ToString());
             File.Copy("defaultconfig.txt", "config.txt", true);
@@ -412,7 +413,7 @@ namespace LD26
             }
         }
 
-        static Dictionary<string, SoundEffectInstance> eueue = new Dictionary<string, SoundEffectInstance>();
+        public static Dictionary<string, SoundEffectInstance> eueue = new Dictionary<string, SoundEffectInstance>();
 
         internal static void PlaySoundEueue(string name)
         {

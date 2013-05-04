@@ -126,6 +126,7 @@ namespace LD26
             LoadSound("musicbossp4");
 
             LoadSound("meow");
+            LoadSound("quiet");
 
             RM.Volume = 1;
 

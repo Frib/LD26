@@ -75,34 +75,11 @@ namespace LD26.entities
 
             if (Active)
             {
-                if (World.player.IsVisible)
-                {
-                    List<Vector3> chain = new List<Vector3>();
-
-                    var newDir = World.player.Position - Position;
-                    var distance = newDir.Length();
-                    newDir.Normalize();
-
-                    for (int i = 1; i < dist/4; i++)
-                    {
-                        chain.Add((Position + (newDir*i*4)).ToVector3());
-                    }
-                    if (World.IsOnFloor(chain))
-                    {
-                        var ray = new Ray(Position.ToVector3() + new Vector3(0, eyeYHeight, 0), newDir.ToVector3());
-                        if (
-                            !World.entities.OfType<Door>()
-                                 .Any(d => (d.cube.box.Intersects(ray) ?? float.MaxValue) < distance))
-                        {
-                            LastKnownPlayerPos = World.player.Position;
-                        }
-                    }
-                }
-
                 Direction = (LastKnownPlayerPos - Position);
-                if (Direction.Length() < 3)
+                if (Direction.Length() < 2)
                 {
                     Direction = Vector2.Zero;
+                    active = false;
                 }
                 else
                 {
@@ -181,7 +158,7 @@ namespace LD26.entities
             return new Monster(w, new Vector2(int.Parse(pos[0]), int.Parse(pos[1])));
         }
 
-        private bool active;
+        public bool active;
         public bool Active { get { return active; } 
         set
         {

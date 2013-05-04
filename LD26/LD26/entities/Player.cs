@@ -57,13 +57,13 @@ namespace LD26.entities
                 var cameraFinalTarget = Position.ToVector3() + new Vector3(0, eyeYHeight, 0) + cameraRotatedTarget;
 
                 var v = Matrix.CreateLookAt(Position.ToVector3() + new Vector3(0, eyeYHeight, 0), cameraFinalTarget, Vector3.Up);
-                var p = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(Math.Min(60, abilityTimer)), (float)G.g.Window.ClientBounds.Width / (float)G.g.Window.ClientBounds.Height, 1f, 10000f);
+                var p = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(Math.Min(75, abilityTimer * 1.25f)), (float)G.g.Window.ClientBounds.Width / (float)G.g.Window.ClientBounds.Height, 1f, 10000f);
 
                  var bf = new BoundingFrustum(v * p);
 
-                foreach (var m in World.entities.OfType<Monster>().Where(m => !m.Active))
+                foreach (var m in World.entities.OfType<Monster>())
                 {
-                    if (bf.Contains(new BoundingSphere(m.Position.ToVector3() + new Vector3(0, 14, 0), 1)) == ContainmentType.Contains)
+                    if (bf.Contains(new BoundingSphere(m.Position.ToVector3() + new Vector3(0, 14, 0), 1)) != ContainmentType.Disjoint)
                     {
                         var dist = (m.Position - Position).Length();
 
@@ -93,7 +93,31 @@ namespace LD26.entities
 
                 foreach (var e in World.entities.OfType<EndPortal>())
                 {
-                    e.PlayerIsLooking();
+                    if (bf.Contains(new BoundingSphere(e.Position.ToVector3() + new Vector3(0, 14, 0), 1)) != ContainmentType.Disjoint)
+                    {
+                        var dist = (e.Position - Position).Length();
+
+                        List<Vector3> chain = new List<Vector3>();
+
+                        var newDir = e.Position - Position;
+                        var distance = newDir.Length();
+                        newDir.Normalize();
+
+                        for (int i = 1; i < dist / 4; i++)
+                        {
+                            chain.Add((Position + (newDir * i * 4)).ToVector3());
+                        }
+                        if (World.IsOnFloor(chain))
+                        {
+                            var ray = new Ray(e.Position.ToVector3() + new Vector3(0, e.eyeYHeight, 0), newDir.ToVector3());
+                            if (
+                                !World.entities.OfType<Door>()
+                                     .Any(d => (d.cube.box.Intersects(ray) ?? float.MaxValue) < distance))
+                            {
+                                e.PlayerIsLooking();
+                            }
+                        }
+                    }
                 }
             }
                 

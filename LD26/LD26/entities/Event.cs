@@ -83,7 +83,7 @@ namespace LD26.entities
                 {
                     outerindex = 0;
                 }
-
+                outer.active = true;
                 outer.LastKnownPlayerPos = outerRing[outerindex];
             }
 
@@ -199,10 +199,26 @@ namespace LD26.entities
     public class EventLevelTwo : Event
     {
         private int ticker = 0;
+        private bool skippedTutorial;
 
         public override void Update()
         {
             ticker++;
+
+            if (RM.IsPressed(InputAction.SkipTutorial) && !skippedTutorial && ticker < 900)
+            {
+                skippedTutorial = true;
+                foreach (var s in RM.eueue.Values)
+                {
+                    s.Stop(true);
+                }
+                World.entities.OfType<Door>().Last().state = DoorState.Opening;
+                ticker = 900;
+
+                RM.PlaySoundEueue("quiet");
+            }
+
+
             if (ticker == 60)
             {
                 RM.PlaySoundEueue("voice\\dude\\L2V1");
@@ -238,6 +254,20 @@ namespace LD26.entities
         public override void Update()
         {
             ticker++;
+
+            if (RM.IsPressed(InputAction.SkipTutorial) && !skippedTutorial && ticker < 2000)
+            {
+                skippedTutorial = true;
+                foreach (var s in RM.eueue.Values)
+                {
+                    s.Stop(true);
+                }
+                World.player.UnFreeze();
+                World.entities.OfType<Door>().First().state = DoorState.Opening;
+                ticker = 2000;
+
+                RM.PlaySoundEueue("quiet");
+            }
 
             if (ticker == 1)
             {
@@ -293,6 +323,7 @@ namespace LD26.entities
         private int e2timer = 0;
         private bool e1;
         private bool e2;
+        private bool skippedTutorial;
 
         protected override void DrawExtraHudShit(int offset)
         {

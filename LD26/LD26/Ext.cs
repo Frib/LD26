@@ -55,6 +55,7 @@ namespace LD26
                 case InputAction.Action: return "Goggles";
                 case InputAction.Sprint: return "Sprint";
                 case InputAction.EditorLeftClick: return "Click";
+                case InputAction.SkipTutorial: return "Skip tutorial";
 #if debug
                 case InputAction.AltFire: return "(Editor) select";
                 case InputAction.ChangeSound: return "Change volume";

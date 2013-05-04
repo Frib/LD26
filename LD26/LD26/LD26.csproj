@@ -144,22 +144,22 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <Content Include="levels\6.txt">
+    <Content Include="levels\6 - The End.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="levels\5.txt">
+    <Content Include="levels\5 - The Walk.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="levels\2.txt">
+    <Content Include="levels\2 - The Hall.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="levels\3.txt">
+    <Content Include="levels\3 - The Search.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="levels\1.txt">
+    <Content Include="levels\1 - The Warp.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="levels\4.txt">
+    <Content Include="levels\4 - The Maze.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="voidicon.ico" />

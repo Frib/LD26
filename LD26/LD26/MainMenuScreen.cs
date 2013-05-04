@@ -24,13 +24,17 @@ namespace LD26
             G.g.IsMouseVisible = true;
             IM.SnapToCenter = false;
             EndPortal.musicindex = 0;
+            foreach (var s in RM.eueue.Values)
+            {
+                s.Stop(true);
+            }
         }
 
         private void CreateControls()
         {
             options.Clear();
             options.Add(new MenuOption("Play!", RM.font) { Action = new Action(() => g.Showscreen(new IntroScreen())) });
-            //options.Add(new MenuOption("Editorclick level", RM.font) { Action = new Action(() => g.Showscreen(new LevelSelectScreen())) });
+            options.Add(new MenuOption("Select level", RM.font) { Action = new Action(() => g.Showscreen(new LevelSelectScreen())) });
             //options.Add(new MenuOption("Help", RM.font) { Action = new Action(() => g.Showscreen(new HelpScreen(this))) });
             //options.Add(new MenuOption("View achievements", RM.font) { Action = new Action(() => g.Showscreen(new AchievementScreen(this))) });
             //options.Add(new MenuOption("View screenshots", RM.font) { Action = new Action(() => g.Showscreen(new ScreenshotScreen(this))) });
